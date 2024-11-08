@@ -17,19 +17,30 @@ typedef NTSTATUS(NTAPI* NtCreateProcessPrototype)(
 void printNTSTATUS(NTSTATUS status) {
     switch (status) {
     case STATUS_SUCCESS:
-        printf("NtCreateProcess: Success\n");
+        printf("DirectNtCreateProcess: Success\n");
         break;
     case STATUS_ACCESS_DENIED:
-        printf("NtCreateProcess: Access Denied\n");
+        printf("DirectNtCreateProcess: Access Denied\n");
         break;
     case STATUS_UNSUCCESSFUL:
-        printf("NtCreateProcess: Unsuccessful\n");
+        printf("DirectNtCreateProcess: Unsuccessful\n");
         break;
     default:
-        printf("NtCreateProcess failed with NTSTATUS code: 0x%08X\n", status);
+        printf("DirectNtCreateProcess failed with NTSTATUS code: 0x%08X\n", status);
         break;
     }
 }
+
+extern "C" NTSTATUS DirectNtCreateProcess(
+	PHANDLE             ProcessHandle,
+	ACCESS_MASK         DesiredAccess,
+	POBJECT_ATTRIBUTES  ObjectAttributes,
+	HANDLE              ParentProcess,
+	BOOLEAN             InheritObjectTable,
+	HANDLE              SectionHandle,
+	HANDLE              DebugPort,
+	HANDLE              TokenHandle
+);
 
 int main() {
     HMODULE ntdll = LoadLibraryA("ntdll.dll");
@@ -52,7 +63,7 @@ int main() {
     // Open a handle to the parent process, usually set to current process (self).
     HANDLE parentProcess = GetCurrentProcess();
 
-    NTSTATUS status = NtCreateProcess(
+    NTSTATUS status = DirectNtCreateProcess(
         &calcProcess,
         PROCESS_ALL_ACCESS,
         &objAttributes,
